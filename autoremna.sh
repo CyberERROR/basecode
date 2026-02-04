@@ -8,7 +8,7 @@ BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
 NC='\033[0m'
 BOLD='\033[1m'
-LOG_FILE="/tmp/remna_install.log"
+LOG_FILE="/root/remna_install.log"
 
 > "$LOG_FILE"
 
@@ -32,8 +32,17 @@ run_quiet() {
     shift
     echo -ne "${YELLOW}$msg...${NC}"
     "$@" >> "$LOG_FILE" 2>&1 &
-    spinner $!
-    echo -e "${GREEN} Чётко!${NC}"
+    local pid=$!
+    spinner $pid
+    wait $pid
+    local exit_code=$?
+    if [ $exit_code -eq 0 ]; then
+        echo -e "${GREEN} Чётко!${NC}"
+    else
+        echo -e "${RED} Ошибка!${NC}"
+        print_error "Этап провалился (код $exit_code). Смотри подробности в $LOG_FILE"
+        exit 1
+    fi
 }
 
 normalize_input() {
@@ -96,10 +105,11 @@ fi
 
 print_step "Ща глянем, чё там по Докеру..."
 if ! command -v docker &> /dev/null; then
-    run_quiet "Докера нет, подтягиваем братву" bash -c "curl -fsSL https://get.docker.com | sh"
+    run_quiet "Докера нет, подтягиваем братву" bash -c "curl -fsSL https://get.docker.com -o install-docker.sh && sh install-docker.sh"
 else
     echo -e "${GREEN}Докер уже на месте, всё ровно.${NC}"
 fi
+export PATH=/usr/bin:/usr/local/bin:$PATH
 
 print_step "Готовим поляну (создаем папки)..."
 mkdir -p /opt/remnawave
