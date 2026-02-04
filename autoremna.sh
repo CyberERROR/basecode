@@ -388,7 +388,7 @@ run_quiet "Поднимаем Страницу подписки" docker compose 
 cd /opt/remnawave/nginx || exit
 run_quiet "Поднимаем Nginx (Шлюз)" docker compose up -d
 
-#print_banner
+print_banner
 echo -e "${GREEN}${BOLD}Всё, брат, обнял! Установка завершена 🚀${NC}"
 echo -e "${CYAN}Залетай на панель:${NC} https://$PANEL_DOMAIN"
 echo -e "${CYAN}Страница подписки:${NC} https://$SUB_DOMAIN"
